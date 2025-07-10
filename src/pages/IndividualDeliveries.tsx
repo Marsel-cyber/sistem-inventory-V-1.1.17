@@ -21,7 +21,7 @@ interface DeliveryItem {
 }
 
 const IndividualDeliveries: React.FC = () => {
-  const { individualDeliveries, products, priceAreas, refreshData } = useApp();
+  const { individualDeliveries, products, priceAreas, cities, refreshData } = useApp();
   const [showForm, setShowForm] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
@@ -34,6 +34,7 @@ const IndividualDeliveries: React.FC = () => {
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_contact: '',
+    city_id: '',
     purchase_date: '',
     status: 'pending',
     price_markup: 'normal',
@@ -69,6 +70,18 @@ const IndividualDeliveries: React.FC = () => {
     value: product.id,
     label: `${product.name} - ${product.packaging} ${product.size}`
   }));
+
+  // Get city options for select
+  const cityOptions = cities.map((city: any) => ({
+    value: city.id,
+    label: city.name
+  }));
+
+  // Get city name by ID
+  const getCityName = (cityId: number) => {
+    const city = cities.find((c: any) => c.id === cityId);
+    return city ? city.name : '-';
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -302,6 +315,7 @@ const IndividualDeliveries: React.FC = () => {
     setFormData({
       customer_name: delivery.customer_name,
       customer_contact: delivery.customer_contact || '',
+      city_id: delivery.city_id || '',
       purchase_date: delivery.purchase_date,
       status: delivery.status,
       price_markup: delivery.price_markup,
@@ -471,7 +485,8 @@ const IndividualDeliveries: React.FC = () => {
     <div class="customer-info">
       <strong>Kepada Yth Tuan/Toko:</strong><br>
       <span style="font-size: 14px; text-transform: uppercase;">${delivery.customer_name}</span><br>
-      ${delivery.customer_contact ? `<span>Telp: ${delivery.customer_contact}</span>` : ''}
+      ${delivery.customer_contact ? `<span>Telp: ${delivery.customer_contact}</span><br>` : ''}
+      ${delivery.city_id ? `<span>Kota: ${getCityName(delivery.city_id)}</span>` : ''}
     </div>
 
     <table>
@@ -536,6 +551,7 @@ const IndividualDeliveries: React.FC = () => {
     setFormData({
       customer_name: '',
       customer_contact: '',
+      city_id: '',
       purchase_date: '',
       status: 'pending',
       price_markup: 'normal',
@@ -745,6 +761,10 @@ const IndividualDeliveries: React.FC = () => {
                     <span className="font-medium">{selectedDelivery.customer_contact || '-'}</span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-gray-600">Kota:</span>
+                    <span className="font-medium">{getCityName(selectedDelivery.city_id)}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-gray-600">Tanggal Beli:</span>
                     <span className="font-medium">{new Date(selectedDelivery.purchase_date).toLocaleDateString('id-ID')}</span>
                   </div>
@@ -836,6 +856,17 @@ const IndividualDeliveries: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, customer_contact: e.target.value })}
                 placeholder="Nomor telepon / WhatsApp"
               />
+              <SearchableSelect
+                label="Kota"
+                value={formData.city_id}
+                onChange={(value) => setFormData({ ...formData, city_id: value.toString() })}
+                options={cityOptions}
+                placeholder="Pilih kota"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Tanggal Beli"
                 type="date"
@@ -843,15 +874,15 @@ const IndividualDeliveries: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
                 required
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Select
                 label="Status"
                 value={formData.status}
                 onChange={(value) => setFormData({ ...formData, status: value.toString() })}
                 options={statusOptions}
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Select
                 label="Markup Harga"
                 value={formData.price_markup}
@@ -1092,6 +1123,7 @@ const IndividualDeliveries: React.FC = () => {
               <TableHead>ID</TableHead>
               <TableHead>Pelanggan</TableHead>
               <TableHead>Kontak</TableHead>
+              <TableHead>Kota</TableHead>
               <TableHead>Tanggal Beli</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Total</TableHead>
@@ -1101,7 +1133,7 @@ const IndividualDeliveries: React.FC = () => {
           <TableBody>
             {currentDeliveries.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <User className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                   <p className="text-gray-500">
                     {searchTerm || filterStatus ? 'Tidak ada pengiriman yang sesuai dengan filter' : 'Belum ada data pengiriman perorangan'}
@@ -1125,6 +1157,13 @@ const IndividualDeliveries: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     {delivery.customer_contact || '-'}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <span className="font-medium text-blue-600">
+                        {getCityName(delivery.city_id)}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     {new Date(delivery.purchase_date).toLocaleDateString('id-ID')}
