@@ -315,7 +315,7 @@ const IndividualDeliveries: React.FC = () => {
     setFormData({
       customer_name: delivery.customer_name,
       customer_contact: delivery.customer_contact || '',
-      city_id: delivery.city_id || '',
+      city_id: delivery.city_id?.toString() || '',
       purchase_date: delivery.purchase_date,
       status: delivery.status,
       price_markup: delivery.price_markup,
