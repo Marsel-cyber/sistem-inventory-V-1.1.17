@@ -670,6 +670,7 @@ class Database {
     const newDelivery = {
       id: this.getNextId(deliveries),
       ...deliveryData,
+      city_id: deliveryData.city_id ? parseInt(deliveryData.city_id) : null,
       items,
       created_at: new Date().toISOString()
     };
@@ -720,6 +721,7 @@ class Database {
       deliveries[index] = {
         ...oldDelivery,
         ...deliveryData,
+        city_id: deliveryData.city_id ? parseInt(deliveryData.city_id) : null,
         items
       };
       this.setItem('individual_deliveries', deliveries);
