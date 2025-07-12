@@ -36,6 +36,7 @@ const Products: React.FC = () => {
     stock_pcs: 0,
     minimum_stock: 24,
     base_price: 0,
+    rounding_enabled: true,
     area_prices: [] as any[],
     package_items: [] as any[]
   });
@@ -84,11 +85,11 @@ const Products: React.FC = () => {
     e.preventDefault();
     
     try {
-      // Apply custom rounding to base price and area prices
-      const roundedBasePrice = customRound(formData.base_price);
-      const roundedAreaPrices = formData.area_prices.map(ap => ({
+      // Apply custom rounding conditionally based on rounding_enabled
+      const finalBasePrice = formData.rounding_enabled ? customRound(formData.base_price) : formData.base_price;
+      const finalAreaPrices = formData.area_prices.map(ap => ({
         ...ap,
-        price: customRound(ap.price)
+        price: formData.rounding_enabled ? customRound(ap.price) : ap.price
       }));
 
       if (editingProduct) {
@@ -102,8 +103,8 @@ const Products: React.FC = () => {
           formData.stock_dozen,
           formData.stock_pcs,
           formData.minimum_stock,
-          roundedBasePrice,
-          roundedAreaPrices,
+          finalBasePrice,
+          finalAreaPrices,
           formData.package_items
         );
         toast.success('Produk berhasil diperbarui');
@@ -117,8 +118,8 @@ const Products: React.FC = () => {
           formData.stock_dozen,
           formData.stock_pcs,
           formData.minimum_stock,
-          roundedBasePrice,
-          roundedAreaPrices,
+          finalBasePrice,
+          finalAreaPrices,
           formData.package_items
         );
         toast.success('Produk berhasil ditambahkan');
@@ -144,6 +145,7 @@ const Products: React.FC = () => {
       stock_pcs: product.stock_pcs,
       minimum_stock: product.minimum_stock,
       base_price: product.base_price,
+      rounding_enabled: product.rounding_enabled !== false, // Default to true if not set
       area_prices: product.area_prices || [],
       package_items: product.package_items || []
     });
@@ -268,6 +270,7 @@ const Products: React.FC = () => {
       stock_pcs: 0,
       minimum_stock: 24,
       base_price: 0,
+      rounding_enabled: true,
       area_prices: [],
       package_items: []
     });
@@ -913,7 +916,21 @@ const Products: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Harga Dasar
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="rounding_enabled"
+                    checked={formData.rounding_enabled}
+                    onChange={(e) => setFormData({ ...formData, rounding_enabled: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3"
+                  />
+                  <label htmlFor="rounding_enabled" className="text-sm font-medium text-gray-700">
+                    Aktifkan Pembulatan Otomatis
+                  </label>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   type="number"
                   value={formData.base_price}
@@ -923,12 +940,21 @@ const Products: React.FC = () => {
                 />
                 <div className="flex items-center">
                   <span className="text-sm text-gray-500">
-                    Harga setelah pembulatan: {formatCurrency(customRound(formData.base_price))}
+                    {formData.rounding_enabled ? (
+                      <>Harga setelah pembulatan: {formatCurrency(customRound(formData.base_price))}</>
+                    ) : (
+                      <>Harga tanpa pembulatan: {formatCurrency(formData.base_price)}</>
+                    )}
                   </span>
+                </div>
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Pembulatan: Angka yang berakhir dengan 500 tetap, 001-499 dibulatkan ke 500, 501-999 dibulatkan ke 1000
+                {formData.rounding_enabled ? (
+                  'Pembulatan: Angka yang berakhir dengan 500 tetap, 001-499 dibulatkan ke 500, 501-999 dibulatkan ke 1000'
+                ) : (
+                  'Pembulatan dinonaktifkan: Harga akan disimpan sesuai input tanpa pembulatan otomatis'
+                )}
               </p>
             </div>
 
@@ -970,7 +996,7 @@ const Products: React.FC = () => {
                         />
                         <div className="flex items-center">
                           <span className="text-sm text-gray-500 whitespace-nowrap">
-                            → {formatCurrency(customRound(areaPrice.price))}
+                            → {formatCurrency(formData.rounding_enabled ? customRound(areaPrice.price) : areaPrice.price)}
                           </span>
                         </div>
                       </div>
