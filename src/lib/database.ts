@@ -292,6 +292,7 @@ class Database {
     stockPcs: number,
     minimumStock: number,
     basePrice: number,
+    roundingEnabled: boolean,
     areaPrices: any[],
     packageItems: any[]
   ): Promise<void> {
@@ -307,6 +308,7 @@ class Database {
       stock_pcs: stockPcs,
       minimum_stock: minimumStock,
       base_price: basePrice,
+      rounding_enabled: roundingEnabled,
       area_prices: areaPrices,
       package_items: packageItems,
       created_at: new Date().toISOString()
@@ -326,6 +328,7 @@ class Database {
     stockPcs: number,
     minimumStock: number,
     basePrice: number,
+    roundingEnabled: boolean,
     areaPrices: any[],
     packageItems: any[]
   ): Promise<void> {
@@ -343,6 +346,7 @@ class Database {
         stock_pcs: stockPcs,
         minimum_stock: minimumStock,
         base_price: basePrice,
+        rounding_enabled: roundingEnabled,
         area_prices: areaPrices,
         package_items: packageItems
       };
