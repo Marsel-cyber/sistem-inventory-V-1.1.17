@@ -216,9 +216,8 @@ const StoreDeliveries: React.FC = () => {
       newItems[index].quantity = parseInt(value) || 1;
       newItems[index].total_price = roundToThousand(newItems[index].quantity * newItems[index].unit_price);
     } else if (field === 'unit_price') {
-      // Allow manual price editing without automatic rounding
-      newItems[index].unit_price = parseFloat(value) || 0;
-      newItems[index].total_price = newItems[index].quantity * newItems[index].unit_price;
+      newItems[index].unit_price = roundToThousand(parseFloat(value) || 0);
+      newItems[index].total_price = roundToThousand(newItems[index].quantity * newItems[index].unit_price);
     }
     
     setDeliveryItems(newItems);
