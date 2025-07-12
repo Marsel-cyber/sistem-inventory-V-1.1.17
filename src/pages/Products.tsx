@@ -1080,7 +1080,11 @@ const Products: React.FC = () => {
                       <div className="text-sm">
                         <p>{product.packaging}</p>
                         <p className="text-gray-500">{product.size}</p>
-                      </div>
+                                {formData.rounding_enabled ? (
+                                  <>→ {formatCurrency(customRound(areaPrice.price))}</>
+                                ) : (
+                                  <>Tanpa pembulatan: {formatCurrency(areaPrice.price)}</>
+                                )}
                     </TableCell>
                     <TableCell>
                       {product.product_type === 'single' ? (
