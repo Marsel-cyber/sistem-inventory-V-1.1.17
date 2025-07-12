@@ -4,7 +4,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
-import { Modal } from '../components/ui/Modal';
+import { Modal } from '../components/ui/Modal'; // Pastikan ini diimpor dengan benar
 import { useApp } from '../contexts/AppContext';
 import { db } from '../lib/database';
 import { Plus, Edit, Trash2, BookOpen, TrendingUp, TrendingDown, DollarSign, FileText, Calendar } from 'lucide-react';
@@ -75,11 +75,17 @@ const Bookkeeping: React.FC = () => {
       const autoEntries = userRole === 'admin' ? generateAutoEntries() : [];
       const allEntries = [...entriesData, ...autoEntries];
       
-      setEntries(allEntries);
+      // --- PERUBAHAN DI SINI: Urutkan entri berdasarkan tanggal (ascending) ---
+      const sortedEntries = allEntries.sort((a, b) => {
+        // Asumsi format tanggal adalah 'YYYY-MM-DD' atau dapat diurai oleh new Date()
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+
+      setEntries(sortedEntries);
       
       // Recalculate summary with auto entries - only for admin
       if (userRole === 'admin') {
-        const newSummary = calculateSummary(allEntries);
+        const newSummary = calculateSummary(sortedEntries); // Gunakan sortedEntries untuk summary
         setSummary(newSummary);
       }
     } catch (error) {
@@ -137,10 +143,16 @@ const Bookkeeping: React.FC = () => {
     allEntries.forEach((entry: any) => {
       if (entry.type === 'income') {
         summary.total_income += entry.amount;
-        summary[entry.category as keyof typeof summary].income += entry.amount;
+        // Pastikan category adalah kunci yang valid sebelum mengakses
+        if (summary[entry.category as keyof typeof summary]) {
+          summary[entry.category as keyof typeof summary].income += entry.amount;
+        }
       } else {
         summary.total_expense += entry.amount;
-        summary[entry.category as keyof typeof summary].expense += entry.amount;
+        // Pastikan category adalah kunci yang valid sebelum mengakses
+        if (summary[entry.category as keyof typeof summary]) {
+          summary[entry.category as keyof typeof summary].expense += entry.amount;
+        }
       }
     });
 
@@ -384,19 +396,19 @@ const Bookkeeping: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Pemasukan:</span>
                     <span className="font-medium text-green-600">
-                      {formatCurrency(summary[category]?.income || 0)}
+                      {formatCurrency(summary[category as keyof typeof summary]?.income || 0)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Pengeluaran:</span>
                     <span className="font-medium text-red-600">
-                      {formatCurrency(summary[category]?.expense || 0)}
+                      {formatCurrency(summary[category as keyof typeof summary]?.expense || 0)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center border-t pt-3">
                     <span className="text-sm font-medium text-gray-900">Net:</span>
-                    <span className={`font-bold ${(summary[category]?.income || 0) - (summary[category]?.expense || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency((summary[category]?.income || 0) - (summary[category]?.expense || 0))}
+                    <span className={`font-bold ${(summary[category as keyof typeof summary]?.income || 0) - (summary[category as keyof typeof summary]?.expense || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency((summary[category as keyof typeof summary]?.income || 0) - (summary[category as keyof typeof summary]?.expense || 0))}
                     </span>
                   </div>
                 </div>
