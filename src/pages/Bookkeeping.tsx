@@ -76,7 +76,7 @@ const Bookkeeping: React.FC = () => {
       const allEntries = [...entriesData, ...autoEntries];
       
       // --- PERUBAHAN DI SINI: Urutkan entri berdasarkan tanggal (ascending) ---
-      const sortedEntries = allEntries.sort((a, b) => {
+      const sortedEntries = allEntries.sort((b, a) => {
         // Asumsi format tanggal adalah 'YYYY-MM-DD' atau dapat diurai oleh new Date()
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
