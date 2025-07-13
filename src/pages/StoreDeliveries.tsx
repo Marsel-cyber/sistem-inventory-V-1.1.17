@@ -439,6 +439,8 @@ const StoreDeliveries: React.FC = () => {
                 text-align: right;
                 font-weight: bold;
                 white-space: nowrap;
+                border-top: 1px solid #000;
+                border-bottom: 1px solid #000;
               }
               .footer-sign {
                 display: flex;
