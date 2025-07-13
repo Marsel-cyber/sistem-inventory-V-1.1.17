@@ -498,7 +498,7 @@ const StoreDeliveries: React.FC = () => {
             
             <table class="total-table">
               <tr>
-                <td class="label">Total Produk:</td>
+                <td class="label">Total Harga:</td>
                 <td class="value">${formatCurrency(itemsTotal)}</td>
               </tr>
               ${delivery.show_discount_in_print && delivery.discount > 0 ? `
