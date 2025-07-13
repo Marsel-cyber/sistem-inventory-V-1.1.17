@@ -379,7 +379,6 @@ const StoreDeliveries: React.FC = () => {
             <style>
               body {
                 font-family: "Tahoma", sans-serif;
-                font-weight: 200;
                 font-size: 12px;
                 margin: 40px;
                 color: #000;
