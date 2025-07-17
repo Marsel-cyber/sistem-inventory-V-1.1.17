@@ -499,7 +499,6 @@ const StoreDeliveries: React.FC = () => {
             </table>
             
             <table>
-              <td></td>
               <tr>
                 <td class="label">Total Harga:</td>
                 <td class="value">${formatCurrency(itemsTotal)}</td>
