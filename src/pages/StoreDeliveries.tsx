@@ -493,7 +493,7 @@ const StoreDeliveries: React.FC = () => {
                     <td style="text-align: right;">${item.quantity}</td>
                     <td>${item.unit_price}</td>
                     <td>${formatCurrency(item.total_price)}</td>
-                    <tr><td></td></tr>
+                    td
                     <tr>
                 <td class="label">Total Harga:</td>
                 <td class="value">${formatCurrency(itemsTotal)}</td>
