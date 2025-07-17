@@ -499,7 +499,7 @@ const StoreDeliveries: React.FC = () => {
             </table>
             
             <table>
-            <tr>
+              <td></td>
               <tr>
                 <td class="label">Total Harga:</td>
                 <td class="value">${formatCurrency(itemsTotal)}</td>
@@ -520,8 +520,6 @@ const StoreDeliveries: React.FC = () => {
                 <td class="label"><strong>Total Keseluruhan:</strong></td>
                 <td class="value"><strong>${formatCurrency(total)}</strong></td>
               </tr>
-              </tr>
-            
             </table>
             
             <div class="footer-sign" style="font-size: 15px !important;">
