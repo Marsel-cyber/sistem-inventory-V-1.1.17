@@ -494,6 +494,26 @@ const StoreDeliveries: React.FC = () => {
                     <td>${item.unit_price}</td>
                     <td>${formatCurrency(item.total_price)}</td>
                   </tr>
+                  <tr>
+                <td class="label">Total Harga:</td>
+                <td class="value">${formatCurrency(itemsTotal)}</td>
+              </tr>
+              ${delivery.show_discount_in_print && delivery.discount > 0 ? `
+              <tr>
+                <td class="label">Diskon (${delivery.discount}%):</td>
+                <td class="value">-${formatCurrency(discountAmount)}</td>
+              </tr>
+              ` : ''}
+              ${delivery.show_shipping_in_print && delivery.shipping_cost > 0 ? `
+              <tr>
+                <td class="label">Ongkos Kirim:</td>
+                <td class="value">${formatCurrency(delivery.shipping_cost)}</td>
+              </tr>
+              ` : ''}
+              <tr>
+                <td class="label"><strong>Total Keseluruhan:</strong></td>
+                <td class="value"><strong>${formatCurrency(total)}</strong></td>
+              </tr>
                 `).join('')}
               </tbody>
             </table>
