@@ -516,7 +516,7 @@ const StoreDeliveries: React.FC = () => {
                 <td>${index + 1}</td>
                 <td>${item.product_name}</td>
                 <td style="text-align: right;">${item.quantity}</td>
-                <td style="text-align: right;">${formatCurrency(item.unit_price)}</td>
+                <td style="text-align: right;">${item.unit_price}</td>
                 <td style="text-align: right;">${formatCurrency(item.total_price)}</td>
             </tr>
             `).join('')}
