@@ -378,7 +378,7 @@ const StoreDeliveries: React.FC = () => {
     <title>Faktur Penjualan - ${delivery.id}</title>
     <style>
         body {
-            font-family: "Tahoma", sans-serif;
+            font-family: 'Consolas', 'Lucida Console', monospace;
             font-size: 12px;
             margin: 40px;
             color: #000;
