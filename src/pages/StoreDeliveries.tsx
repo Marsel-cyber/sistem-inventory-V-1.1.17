@@ -446,7 +446,7 @@ const StoreDeliveries: React.FC = () => {
         }
 
         .total-row .total-label {
-            text-align: right;
+            /* text-align: right; */
             font-weight: normal;
             /* Labels are not bold unless explicitly stated */
         }
@@ -490,7 +490,7 @@ const StoreDeliveries: React.FC = () => {
         </div>
         <div class="invoice-info">
             <div class="invoice-title" style="font-size: 16px !important;">Faktur Penjualan</div>
-            <p style="font-size: 14px !important;"><strong>Tanggal Kirim:</strong> ${new
+            <p style="font-size: 14px !important;"><b>Tanggal Kirim:</b> ${new
                 Date(delivery.delivery_date).toLocaleDateString('id-ID')}</p>
 
             <div style="font-size: 15px !important;"><strong>No. Invoice:</strong> ${delivery.id}</div>
