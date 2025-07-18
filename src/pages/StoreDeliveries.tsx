@@ -659,8 +659,6 @@ const StoreDeliveries: React.FC = () => {
   const totalAmount = filteredDeliveries.reduce((sum: number, delivery: any) => sum + delivery.total_amount, 0);
   const totalProducts = filteredDeliveries.reduce((sum: number, delivery: any) => 
     sum + (delivery.items?.reduce((itemSum: number, item: any) => itemSum + item.quantity, 0) || 0), 0
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
