@@ -548,6 +548,7 @@ class Database {
     const newDelivery = {
       id: this.getNextId(deliveries),
       ...deliveryData,
+      price_area_id: deliveryData.price_area_id,
       items,
       created_at: new Date().toISOString()
     };
@@ -598,6 +599,7 @@ class Database {
       deliveries[index] = {
         ...oldDelivery,
         ...deliveryData,
+        price_area_id: deliveryData.price_area_id,
         items
       };
       this.setItem('store_deliveries', deliveries);
@@ -675,6 +677,7 @@ class Database {
       id: this.getNextId(deliveries),
       ...deliveryData,
       city_id: deliveryData.city_id ? parseInt(deliveryData.city_id) : null,
+      price_area_id: deliveryData.price_area_id,
       items,
       created_at: new Date().toISOString()
     };
@@ -726,6 +729,7 @@ class Database {
         ...oldDelivery,
         ...deliveryData,
         city_id: deliveryData.city_id ? parseInt(deliveryData.city_id) : null,
+        price_area_id: deliveryData.price_area_id,
         items
       };
       this.setItem('individual_deliveries', deliveries);
