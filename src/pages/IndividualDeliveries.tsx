@@ -341,6 +341,8 @@ const IndividualDeliveries: React.FC = () => {
       };
 
         price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
+      };
+
       if (editingDelivery) {
         await db.updateIndividualDelivery(editingDelivery.id, deliveryData, deliveryItems);
         toast.success('Pengiriman berhasil diperbarui');

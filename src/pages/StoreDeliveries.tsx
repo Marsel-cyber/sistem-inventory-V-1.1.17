@@ -72,6 +72,9 @@ const StoreDeliveries: React.FC = () => {
     if (!formData.city_id) return [];
     return stores
       .filter((store: any) => store.city_id === parseInt(formData.city_id))
+    }));
+  };
+
       .map((store: any) => ({
         value: store.id,
         label: store.name
