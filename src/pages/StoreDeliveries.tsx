@@ -374,180 +374,192 @@ const StoreDeliveries: React.FC = () => {
 
       printWindow.document.write(`
         <html>
-          <head>
-            <title>Faktur Penjualan - ${delivery.id}</title>
-            <style>
-              body {
-                font-family: "Tahoma", sans-serif;
-                font-size: 12px;
-                margin: 40px;
-                color: #000;
-              }
-              .top-section {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-              }
-              .company-info {
-                font-size: 11px;
-                line-height: 1.6;
-              }
-              .invoice-info {
-                text-align: right;
-                font-size: 14px;
-                line-height: 1.6;
-              }
-              .invoice-info strong {
-                display: inline-block;
-                width: 100px;
-              }
-              .invoice-title {
-                text-align: right;
-                font-weight: bold;
-                font-size: 14px;
-                margin-top: 5px;
-                margin-bottom: 20px;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-                font-size: 16px !important;
-              }
-              th, td {
-                border: 1px solid #ccc;
-                padding: 4px;
-                text-align: left;
-                font-size: 16px !important;
-              }
-              th {
-                background-color: #f2f2f2;
-                font-weight: bold;
-                font-size: 16px !important;
-              }
-              .total-table td {
-                border: none;
-                padding: 4px 6px;
-                font-size: 18px;
-              }
-              .total-table .label {
-                text-align: right;
-                width: 90%;
-                font=size: 18px !important;
-              }
-              .total-table .value {
-                text-align: right;
-                font-weight: bold;
-                white-space: nowrap;
-                border-top: 1px solid #000;
-                border-bottom: 1px solid #000;
-              }
-              .footer-sign {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 60px;
-                font-size: 12px;
-                padding: 0 10px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="top-section">
-              <div class="company-info" style="font-size: 13px !important;">
-                <img src="https://risnacookies.com/wp-content/uploads/2025/02/Risna-Cookies-Desain-02-e1740218556622.png" alt="Logo" width="200"><br>
-                <div style="display: flex; align-items: center;">
-                    <img src="src/components/assets/halal.png" alt="Logo" width="50" style="margin-right: 10px;">
-                    <div>
-                        <span style="display: block; font-size: 14px; line-height: 1.4;">DEP. KES. RI. P-IRT NO. 2053374020970-28</span>
-                        <span style="display: block; font-size: 14px; line-height: 1.4;">TELP (024) 8442782 SEMARANG</span>
-                        <span style="display: block; font-size: 14px; line-height: 1.4;">ADMIN. 0822 5758 8586</span>
-                    </div>
+
+<head>
+    <title>Faktur Penjualan - ${delivery.id}</title>
+    <style>
+        body {
+            font-family: "Tahoma", sans-serif;
+            font-size: 12px;
+            margin: 40px;
+            color: #000;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .company-info {
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .invoice-info {
+            text-align: right;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .invoice-info strong {
+            display: inline-block;
+            width: 100px;
+        }
+
+        .invoice-title {
+            text-align: right;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px !important;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 4px;
+            text-align: left;
+            font-size: 16px !important;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 16px !important;
+        }
+
+        /* New styles for the total rows within the main table */
+        .total-row td {
+            border: none;
+            /* Remove borders for total rows */
+            /* Larger font for totals */
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+
+        .total-row .total-label {
+            text-align: right;
+            font-weight: normal;
+            /* Labels are not bold unless explicitly stated */
+        }
+
+        .total-row .total-value {
+            text-align: right;
+            font-weight: bold;
+            white-space: nowrap;
+            border: 1px solid #ccc;
+        }
+
+        .grand-total .total-value {
+            border-top: 1px solid #000;
+        }
+
+        .footer-sign {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            font-size: 15px !important;
+            padding: 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-section">
+        <div class="company-info" style="font-size: 13px !important;">
+            <img src="https://risnacookies.com/wp-content/uploads/2025/02/Risna-Cookies-Desain-02-e1740218556622.png"
+                alt="Logo" width="200"><br>
+            <div style="display: flex; align-items: center;">
+                <img src="src/components/assets/halal.png" alt="Logo" width="50" style="margin-right: 10px;">
+                <div>
+                    <span style="display: block; font-size: 14px; line-height: 1.4;">DEP. KES. RI. P-IRT NO.
+                        2053374020970-28</span>
+                    <span style="display: block; font-size: 14px; line-height: 1.4;">TELP (024) 8442782 SEMARANG</span>
+                    <span style="display: block; font-size: 14px; line-height: 1.4;">ADMIN. 0822 5758 8586</span>
                 </div>
-
-              </div>
-              <div class="invoice-info">
-                <div class="invoice-title" style="font-size: 16px !important;">Faktur Penjualan</div>
-                        <div style="font-size: 14px !important;"><strong>Tanggal Kirim:</strong> ${new Date(delivery.delivery_date).toLocaleDateString('id-ID')}</div>
-
-                <div style="font-size: 15px !important;"><strong>No. Invoice:</strong> ${delivery.id}</div>
-                <div><strong style="font-size: 16px !important;" class="flex">Kepada Yth Tuan/Toko:</strong><br><span style="font-size: 24px !important;text-transform: uppercase;"> ${store?.name}</span></div>
-                <div style="font-size: 15px !important;text-transform:uppercase;">${delivery.city_name}</div>
-              </div>
             </div>
-            
-            <table>
-              <thead>
-                <tr>
-                  <th>NO</th>
-                  <th>Nama Produk</th>
-                  <th>Qty</th>
-                  <th>Harga Satuan (Rp)</th>
-                  <th>Harga (Rp)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${delivery.items?.map((item: any, index: number) => `
-                  <tr>
-                    <td>${index +1}</td>
-                    <td>${item.product_name}</td>
-                    <td style="text-align: right;">${item.quantity}</td>
-                    <td>${item.unit_price}</td>
-                    <td>${formatCurrency(item.total_price)}</td>
-                    <td></td>
-                    <tr>
-                <td class="label">Total Harga:</td>
-                <td class="value">${formatCurrency(itemsTotal)}</td>
-              </tr>
-              ${delivery.show_discount_in_print && delivery.discount > 0 ? `
-              <tr>
-                <td class="label">Diskon (${delivery.discount}%):</td>
-                <td class="value">-${formatCurrency(discountAmount)}</td>
-              </tr>
-              ` : ''}
-              ${delivery.show_shipping_in_print && delivery.shipping_cost > 0 ? `
-              <tr>
-                <td class="label">Ongkos Kirim:</td>
-                <td class="value">${formatCurrency(delivery.shipping_cost)}</td>
-              </tr>
-              ` : ''}
-              <tr>
-                <td class="label"><strong>Total Keseluruhan:</strong></td>
-                <td class="value"><strong>${formatCurrency(total)}</strong></td>
-              </tr>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-            
-            <table>
-              <tr>
-                <td class="label">Total Harga:</td>
-                <td class="value">${formatCurrency(itemsTotal)}</td>
-              </tr>
-              ${delivery.show_discount_in_print && delivery.discount > 0 ? `
-              <tr>
-                <td class="label">Diskon (${delivery.discount}%):</td>
-                <td class="value">-${formatCurrency(discountAmount)}</td>
-              </tr>
-              ` : ''}
-              ${delivery.show_shipping_in_print && delivery.shipping_cost > 0 ? `
-              <tr>
-                <td class="label">Ongkos Kirim:</td>
-                <td class="value">${formatCurrency(delivery.shipping_cost)}</td>
-              </tr>
-              ` : ''}
-              <tr>
-                <td class="label"><strong>Total Keseluruhan:</strong></td>
-                <td class="value"><strong>${formatCurrency(total)}</strong></td>
-              </tr>
-            </table>
-            
-            <div class="footer-sign" style="font-size: 15px !important;">
-              <div>Penerima</div>
-              <div>Hormat Kami</div>
-            </div>
-          </body>
-        </html>
+
+        </div>
+        <div class="invoice-info">
+            <div class="invoice-title" style="font-size: 16px !important;">Faktur Penjualan</div>
+            <p style="font-size: 14px !important;"><strong>Tanggal Kirim:</strong> ${new
+                Date(delivery.delivery_date).toLocaleDateString('id-ID')}</p>
+
+            <div style="font-size: 15px !important;"><strong>No. Invoice:</strong> ${delivery.id}</div>
+            <div><strong style="font-size: 16px !important;" class="flex">Kepada Yth Tuan/Toko:</strong><br><span
+                    style="font-size: 24px !important;text-transform: uppercase;"> ${store?.name}</span></div>
+            <div style="font-size: 15px !important;text-transform:uppercase;">${delivery.city_name}</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>NO</th>
+                <th>Nama Produk</th>
+                <th style="text-align: right;">Qty</th>
+                <th style="text-align: right;">Harga Satuan (Rp)</th>
+                <th style="text-align: right;">Harga (Rp)</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${delivery.items?.map((item: any, index: number) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.product_name}</td>
+                <td style="text-align: right;">${item.quantity}</td>
+                <td style="text-align: right;">${formatCurrency(item.unit_price)}</td>
+                <td style="text-align: right;">${formatCurrency(item.total_price)}</td>
+            </tr>
+            `).join('')}
+
+            <tr class="total-row">
+                <td colspan="3"></td>
+                <td class="total-label" style="padding-top: 1rem;">Total Harga:</td>
+                <td class="total-value" style="padding-top: 1rem;">${formatCurrency(itemsTotal)}</td>
+            </tr>
+            ${delivery.show_discount_in_print && delivery.discount > 0 ? `
+            <tr class="total-row">
+                <td colspan="3"></td>
+                <td class="total-label">Diskon (${delivery.discount}%):</td>
+                <td class="total-value">-${formatCurrency(discountAmount)}</td>
+            </tr>
+            ` : ''}
+            ${delivery.show_shipping_in_print && delivery.shipping_cost > 0 ? `
+            <tr class="total-row">
+                <td colspan="3"></td>
+                <td class="total-label">Ongkos Kirim:</td>
+                <td class="total-value">${formatCurrency(delivery.shipping_cost)}</td>
+            </tr>
+            ` : ''}
+            <tr class="total-row grand-total">
+                <td colspan="3"></td>
+                <td class="total-label"><strong>Total Keseluruhan:</strong></td>
+                <td class="total-value"><strong>${formatCurrency(total)}</strong></td>
+            </tr>
+            <tr class="total-row grand-total">
+                <td colspan="3"></td>
+                <td class="total-label"><strong></strong></td>
+                <td class="total-value"><strong></strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer-sign" style="font-size: 15px !important;">
+        <div>Penerima</div>
+        <div>Hormat Kami</div>
+    </div>
+</body>
+
+</html>
       `);
       printWindow.document.close();
       printWindow.print();
