@@ -512,7 +512,7 @@ const StoreDeliveries: React.FC = () => {
         <tbody>
             ${delivery.items?.map((item: any, index: number) => `
             <tr>
-                <td>${index + 1}</td>
+                <td style="font-size: 14px;">${index + 1}</td>
                 <td>${item.product_name}</td>
                 <td style="text-align: right;">${item.quantity}</td>
                 <td style="text-align: right;">${formatCurrency(item.unit_price)}</td>
