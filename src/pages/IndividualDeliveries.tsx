@@ -21,7 +21,7 @@ interface DeliveryItem {
 }
 
 const IndividualDeliveries: React.FC = () => {
-  const { individualDeliveries, products, priceAreas, cities, refreshData } = useApp();
+  const { individualDeliveries, products, cities, priceAreas, refreshData } = useApp();
   const [showForm, setShowForm] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
@@ -35,6 +35,7 @@ const IndividualDeliveries: React.FC = () => {
     customer_name: '',
     customer_contact: '',
     city_id: '',
+    price_area_id: '',
     purchase_date: '',
     status: 'pending',
     price_markup: 'normal',
@@ -78,9 +79,34 @@ const IndividualDeliveries: React.FC = () => {
   }));
 
   // Get city name by ID
+  const getPriceAreaOptions = () => {
+    return priceAreas.map((area: any) => ({
+      value: area.id,
+      label: area.name
+    }));
+  };
+
   const getCityName = (cityId: number) => {
     const city = cities.find((c: any) => c.id === cityId);
     return city ? city.name : '-';
+  };
+
+  const getProductPrice = (productId: number) => {
+    const product = products.find((p: any) => p.id === productId);
+    if (!product) return 0;
+
+    // If price area is selected, try to get area-specific price
+    if (formData.price_area_id) {
+      const areaPrice = product.area_prices?.find((ap: any) => 
+        ap.price_area_id === parseInt(formData.price_area_id)
+      );
+      if (areaPrice) {
+        return areaPrice.price;
+      }
+    }
+
+    // Fallback to base price
+    return product.base_price;
   };
 
   const formatCurrency = (amount: number) => {
@@ -125,7 +151,7 @@ const IndividualDeliveries: React.FC = () => {
     if (field === 'product_id') {
       const product = products.find((p: any) => p.id === parseInt(value));
       if (product) {
-        // For package products, check if component products have enough stock
+        newItems[index].unit_price = getProductPrice(parseInt(value));
         if (product.product_type === 'package') {
           const packageItems = product.package_items || [];
           let hasEnoughStock = true;
@@ -216,12 +242,32 @@ const IndividualDeliveries: React.FC = () => {
       
       newItems[index].quantity = parseInt(value) || 1;
       newItems[index].total_price = roundToThousand(newItems[index].quantity * newItems[index].unit_price);
+    } else if (field === 'quantity') {
+      newItems[index].total_price = newItems[index].unit_price * parseInt(value);
     } else if (field === 'unit_price') {
-      newItems[index].unit_price = roundToThousand(parseFloat(value) || 0);
-      newItems[index].total_price = roundToThousand(newItems[index].quantity * newItems[index].unit_price);
     }
     
     setDeliveryItems(newItems);
+  };
+
+  // Update prices when price area changes
+  const handlePriceAreaChange = (priceAreaId: string) => {
+    setFormData({ ...formData, price_area_id: priceAreaId });
+    
+    // Update existing items with new prices
+    const updatedItems = deliveryItems.map(item => {
+      if (item.product_id) {
+        const newPrice = getProductPrice(item.product_id);
+        return {
+          ...item,
+          unit_price: newPrice,
+          total_price: newPrice * item.quantity
+        };
+      }
+      return item;
+    });
+    
+    setDeliveryItems(updatedItems);
   };
 
   const removeDeliveryItem = (index: number) => {
@@ -294,6 +340,7 @@ const IndividualDeliveries: React.FC = () => {
         total_amount: calculateTotal()
       };
 
+        price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
       if (editingDelivery) {
         await db.updateIndividualDelivery(editingDelivery.id, deliveryData, deliveryItems);
         toast.success('Pengiriman berhasil diperbarui');
@@ -317,6 +364,7 @@ const IndividualDeliveries: React.FC = () => {
       customer_contact: delivery.customer_contact || '',
       city_id: delivery.city_id?.toString() || '',
       purchase_date: delivery.purchase_date,
+      price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       status: delivery.status,
       price_markup: delivery.price_markup,
       discount: delivery.discount,
@@ -665,6 +713,7 @@ const IndividualDeliveries: React.FC = () => {
       customer_name: '',
       customer_contact: '',
       city_id: '',
+      price_area_id: '',
       purchase_date: '',
       status: 'pending',
       price_markup: 'normal',
@@ -977,6 +1026,16 @@ const IndividualDeliveries: React.FC = () => {
                 placeholder="Pilih kota"
                 required
               />
+              <Select
+                label="Area Harga"
+                value={formData.price_area_id}
+                onChange={(value) => handlePriceAreaChange(value.toString())}
+                options={[
+                  { value: '', label: 'Harga Dasar' },
+                  ...getPriceAreaOptions()
+                ]}
+                placeholder="Pilih area harga"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1151,9 +1210,8 @@ const IndividualDeliveries: React.FC = () => {
                         label="Harga Satuan"
                         type="number"
                         value={item.unit_price}
-                        onChange={(e) => updateDeliveryItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                        min={0}
-                        required
+                        disabled
+                        className="bg-gray-50"
                       />
                       <Input
                         label="Total Harga"
