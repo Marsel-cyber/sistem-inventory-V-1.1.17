@@ -76,7 +76,6 @@ const StoreDeliveries: React.FC = () => {
         label: store.name
       }));
   };
-  };
 
   const getPriceAreaOptions = () => {
     return priceAreas.map((area: any) => ({
@@ -661,8 +660,6 @@ const StoreDeliveries: React.FC = () => {
   const totalProducts = filteredDeliveries.reduce((sum: number, delivery: any) => 
     sum + (delivery.items?.reduce((itemSum: number, item: any) => itemSum + item.quantity, 0) || 0), 0
   );
-
-  };
 
   return (
     <div className="space-y-6">
