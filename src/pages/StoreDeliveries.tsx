@@ -82,11 +82,10 @@ const StoreDeliveries: React.FC = () => {
     label: `${product.name} - ${product.packaging} ${product.size}`
   }));
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
+        style: 'decimal', // Ubah dari 'currency' menjadi 'decimal'
+        minimumFractionDigits: 0
     }).format(amount);
   };
 
