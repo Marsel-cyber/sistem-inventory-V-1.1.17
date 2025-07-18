@@ -21,7 +21,7 @@ interface DeliveryItem {
 }
 
 const StoreDeliveries: React.FC = () => {
-  const { storeDeliveries, stores, products, priceAreas, refreshData } = useApp();
+  const { storeDeliveries, stores, products, priceAreas, cities, refreshData } = useApp();
   const [showForm, setShowForm] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
@@ -72,12 +72,12 @@ const StoreDeliveries: React.FC = () => {
     if (!formData.city_id) return [];
     return stores
       .filter((store: any) => store.city_id === parseInt(formData.city_id))
-    }));
-  };
-
       .map((store: any) => ({
         value: store.id,
         label: store.name
+      }));
+  };
+
   const getPriceAreaOptions = () => {
     return priceAreas.map((area: any) => ({
       value: area.id,
@@ -85,15 +85,12 @@ const StoreDeliveries: React.FC = () => {
     }));
   };
 
-      }));
-  };
-
   const productOptions = products.map((product: any) => ({
     value: product.id,
     label: `${product.name} - ${product.packaging} ${product.size}`
   }));
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
         style: 'decimal', // Ubah dari 'currency' menjadi 'decimal'
         minimumFractionDigits: 0
@@ -125,6 +122,24 @@ const StoreDeliveries: React.FC = () => {
       total_price: 0,
       price_type: 'base'
     }]);
+  };
+
+  const getProductPrice = (productId: number) => {
+    const product = products.find((p: any) => p.id === productId);
+    if (!product) return 0;
+
+    // If price area is selected, try to get area-specific price
+    if (formData.price_area_id) {
+      const areaPrice = product.area_prices?.find((ap: any) => 
+        ap.price_area_id === parseInt(formData.price_area_id)
+      );
+      if (areaPrice) {
+        return areaPrice.price;
+      }
+    }
+
+    // Fallback to base price
+    return product.base_price;
   };
 
   const updateDeliveryItem = (index: number, field: string, value: any) => {
@@ -225,9 +240,8 @@ const StoreDeliveries: React.FC = () => {
       
       newItems[index].quantity = parseInt(value) || 1;
       newItems[index].total_price = roundToThousand(newItems[index].quantity * newItems[index].unit_price);
-    } else if (field === 'quantity') {
-      newItems[index].total_price = newItems[index].unit_price * parseInt(value);
     } else if (field === 'unit_price') {
+      newItems[index].total_price = newItems[index].unit_price * newItems[index].quantity;
     }
     
     setDeliveryItems(newItems);
@@ -617,24 +631,6 @@ const StoreDeliveries: React.FC = () => {
     setDeliveryItems([]);
     setEditingDelivery(null);
     setShowForm(false);
-  const getProductPrice = (productId: number) => {
-    const product = products.find((p: any) => p.id === productId);
-    if (!product) return 0;
-
-    // If price area is selected, try to get area-specific price
-    if (formData.price_area_id) {
-      const areaPrice = product.area_prices?.find((ap: any) => 
-        ap.price_area_id === parseInt(formData.price_area_id)
-      );
-      if (areaPrice) {
-        return areaPrice.price;
-      }
-    }
-
-    // Fallback to base price
-    return product.base_price;
-  };
-
   };
 
   const getStatusBadge = (status: string) => {
@@ -846,16 +842,6 @@ const StoreDeliveries: React.FC = () => {
                 }}
                 options={cityOptions}
                 placeholder="Pilih kota"
-              <Select
-                label="Area Harga"
-                value={formData.price_area_id}
-                onChange={(value) => handlePriceAreaChange(value.toString())}
-                options={[
-                  { value: '', label: 'Harga Dasar' },
-                  ...getPriceAreaOptions()
-                ]}
-                placeholder="Pilih area harga"
-              />
                 required
               />
               <SearchableSelect
@@ -868,6 +854,17 @@ const StoreDeliveries: React.FC = () => {
                 required
               />
             </div>
+
+            <Select
+              label="Area Harga"
+              value={formData.price_area_id}
+              onChange={(value) => handlePriceAreaChange(value.toString())}
+              options={[
+                { value: '', label: 'Harga Dasar' },
+                ...getPriceAreaOptions()
+              ]}
+              placeholder="Pilih area harga"
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Input
