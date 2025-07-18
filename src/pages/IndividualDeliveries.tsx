@@ -242,9 +242,8 @@ const IndividualDeliveries: React.FC = () => {
       
       newItems[index].quantity = parseInt(value) || 1;
       newItems[index].total_price = roundToThousand(newItems[index].quantity * newItems[index].unit_price);
-    } else if (field === 'quantity') {
-      newItems[index].total_price = newItems[index].unit_price * parseInt(value);
     } else if (field === 'unit_price') {
+      newItems[index].total_price = newItems[index].unit_price * parseInt(value);
     }
     
     setDeliveryItems(newItems);
@@ -337,10 +336,8 @@ const IndividualDeliveries: React.FC = () => {
     try {
       const deliveryData = {
         ...formData,
-        total_amount: calculateTotal()
-      };
-
-        price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
+        total_amount: calculateTotal(),
+        price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null
       };
 
       if (editingDelivery) {
