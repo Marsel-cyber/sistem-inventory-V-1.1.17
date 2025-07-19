@@ -34,7 +34,6 @@ const StoreDeliveries: React.FC = () => {
     city_id: '',
     store_id: '',
     price_area_id: '',
-    price_area_id: '',
     delivery_date: '',
     invoice_date: '',
     billing_date: '',
@@ -123,13 +122,6 @@ const StoreDeliveries: React.FC = () => {
     setDeliveryItems(updatedItems);
   };
 
-  const getPriceAreaOptions = () => {
-    return priceAreas.map((area: any) => ({
-      value: area.id,
-      label: area.name
-    }));
-  };
-
   const productOptions = products.map((product: any) => ({
     value: product.id,
     label: `${product.name} - ${product.packaging} ${product.size}`
@@ -169,7 +161,7 @@ const StoreDeliveries: React.FC = () => {
     }]);
   };
 
-  const getProductPrice = (productId: number) => {
+  const getProductPrice2 = (productId: number) => {
     const product = products.find((p: any) => p.id === productId);
     if (!product) return 0;
 
@@ -194,7 +186,7 @@ const StoreDeliveries: React.FC = () => {
     if (field === 'product_id') {
       const product = products.find((p: any) => p.id === parseInt(value));
       if (product) {
-        newItems[index].unit_price = getProductPrice(product);
+        newItems[index].unit_price = getProductPrice2(product);
         if (product.product_type === 'package') {
           const packageItems = product.package_items || [];
           let hasEnoughStock = true;
@@ -293,13 +285,13 @@ const StoreDeliveries: React.FC = () => {
   };
 
   // Update prices when price area changes
-  const handlePriceAreaChange = (priceAreaId: string) => {
+  const handlePriceAreaChange2 = (priceAreaId: string) => {
     setFormData({ ...formData, price_area_id: priceAreaId });
     
     // Update existing items with new prices
     const updatedItems = deliveryItems.map(item => {
       if (item.product_id) {
-        const newPrice = getProductPrice(item.product_id);
+        const newPrice = getProductPrice2(item.product_id);
         return {
           ...item,
           unit_price: newPrice,
@@ -381,7 +373,6 @@ const StoreDeliveries: React.FC = () => {
         ...formData,
         store_id: parseInt(formData.store_id),
         price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
-        price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
         total_amount: calculateTotal()
       };
 
@@ -407,7 +398,6 @@ const StoreDeliveries: React.FC = () => {
     setFormData({
       city_id: store ? store.city_id.toString() : '',
       store_id: delivery.store_id.toString(),
-      price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       delivery_date: delivery.delivery_date,
       invoice_date: delivery.invoice_date || '',
@@ -663,7 +653,6 @@ const StoreDeliveries: React.FC = () => {
     setFormData({
       city_id: '',
       store_id: '',
-      price_area_id: '',
       price_area_id: '',
       delivery_date: '',
       invoice_date: '',
@@ -959,14 +948,7 @@ const StoreDeliveries: React.FC = () => {
                       }
                       const markupPrice = calculateMarkupPrice(basePrice, value.toString());
                       return {
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Select
-                label="Area Harga"
-                value={formData.price_area_id}
-                onChange={(value) => handlePriceAreaChange(value.toString())}
-                options={getPriceAreaOptions()}
-                placeholder="Pilih area harga"
-              />
+                        ...item,
                         unit_price: roundToThousand(markupPrice),
                         total_price: roundToThousand(markupPrice * item.quantity)
                       };
@@ -1110,6 +1092,7 @@ const StoreDeliveries: React.FC = () => {
                         value={item.unit_price}
                         disabled
                         className="bg-gray-100"
+                      />
                       <Input
                         label="Total Harga"
                         type="number"
