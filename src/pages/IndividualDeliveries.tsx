@@ -10,6 +10,7 @@ import { useApp } from '../contexts/AppContext';
 import { db } from '../lib/database';
 import { Plus, Edit, Trash2, User, CheckCircle, Printer, AlertTriangle, Eye, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { formatCurrency } from '../lib/utils';
 
 interface DeliveryItem {
   product_id: number;
@@ -21,7 +22,7 @@ interface DeliveryItem {
 }
 
 const IndividualDeliveries: React.FC = () => {
-  const { individualDeliveries, products, cities, priceAreas, refreshData } = useApp();
+  const { individualDeliveries, cities, products, priceAreas, refreshData } = useApp();
   const [showForm, setShowForm] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
@@ -34,7 +35,8 @@ const IndividualDeliveries: React.FC = () => {
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_contact: '',
-    city_id: '',
+    status: 'pending',
+    price_area_id: ''
     price_area_id: '',
     purchase_date: '',
     status: 'pending',
@@ -169,6 +171,50 @@ const IndividualDeliveries: React.FC = () => {
     const itemsTotal = deliveryItems.reduce((sum, item) => sum + item.total_price, 0);
     const discountAmount = (itemsTotal * formData.discount) / 100;
     const afterDiscount = itemsTotal - discountAmount;
+  const getPriceAreaOptions = () => {
+    return [
+      { value: '', label: 'Harga Dasar' },
+      ...priceAreas.map((area: any) => ({
+        value: area.id,
+        label: area.name
+      }))
+    ];
+  };
+
+  const getProductPrice = (product: any) => {
+    if (!formData.price_area_id) {
+      return product.base_price;
+    }
+    
+    const areaPrice = product.area_prices?.find((ap: any) => 
+      ap.price_area_id === parseInt(formData.price_area_id)
+    );
+    
+    return areaPrice ? areaPrice.price : product.base_price;
+  };
+
+  const handlePriceAreaChange = (priceAreaId: string) => {
+    setFormData({ ...formData, price_area_id: priceAreaId });
+    
+    // Update all existing items with new prices
+    const updatedItems = deliveryItems.map(item => {
+      const product = products.find((p: any) => p.id === item.product_id);
+      if (product) {
+        const newPrice = priceAreaId ? 
+          (product.area_prices?.find((ap: any) => ap.price_area_id === parseInt(priceAreaId))?.price || product.base_price) :
+          product.base_price;
+        
+        return {
+          ...item,
+          unit_price: newPrice,
+          total_price: newPrice * item.quantity
+        };
+      }
+      return item;
+    });
+    
+    setDeliveryItems(updatedItems);
+  };
     return roundToThousand(afterDiscount + formData.shipping_cost);
   };
 
@@ -331,6 +377,7 @@ const IndividualDeliveries: React.FC = () => {
     for (const item of deliveryItems) {
       const product = products.find((p: any) => p.id === item.product_id);
       if (!product) {
+        price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
         toast.error('Produk tidak ditemukan');
         return;
       }
@@ -383,6 +430,7 @@ const IndividualDeliveries: React.FC = () => {
       purchase_date: delivery.purchase_date,
       price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       status: delivery.status,
+      price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : ''
       price_markup: delivery.price_markup,
       discount: delivery.discount,
       shipping_cost: delivery.shipping_cost,
@@ -733,6 +781,7 @@ const IndividualDeliveries: React.FC = () => {
       price_area_id: '',
       purchase_date: '',
       status: 'pending',
+      price_area_id: ''
       price_markup: 'normal',
       discount: 0,
       shipping_cost: 0,
@@ -1055,7 +1104,7 @@ const IndividualDeliveries: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Input
                 label="Tanggal Beli"
                 type="date"
@@ -1068,6 +1117,13 @@ const IndividualDeliveries: React.FC = () => {
                 value={formData.status}
                 onChange={(value) => setFormData({ ...formData, status: value.toString() })}
                 options={statusOptions}
+              />
+              <Select
+                label="Area Harga"
+                value={formData.price_area_id}
+                onChange={(value) => handlePriceAreaChange(value.toString())}
+                options={getPriceAreaOptions()}
+                placeholder="Pilih area harga"
               />
             </div>
 
@@ -1375,7 +1431,7 @@ const IndividualDeliveries: React.FC = () => {
                           setShowDetailModal(true);
                         }}
                       >
-                        Detail
+                        label: `${product.name} - ${product.packaging} ${product.size} (${formatCurrency(getProductPrice(product))})`
                       </Button>
                       {delivery.status !== 'completed' && (
                         <Button
@@ -1392,15 +1448,15 @@ const IndividualDeliveries: React.FC = () => {
                         variant="ghost"
                         icon={Edit}
                         onClick={() => handleEdit(delivery)}
-                      >
-                        Edit
-                      </Button>
+                      disabled
+                      className="bg-gray-100"
                       <Button
                         size="sm"
                         variant="secondary"
                         icon={Printer}
                         onClick={() => handlePrintInvoice(delivery)}
                       >
+                      className="bg-gray-100"
                         Cetak
                       </Button>
                       <Button
@@ -1412,7 +1468,14 @@ const IndividualDeliveries: React.FC = () => {
                         Hapus
                       </Button>
                     </div>
-                  </TableCell>
+                  <div className="space-y-1">
+                    {formData.price_area_id && (
+                      <p className="text-sm text-blue-600">
+                        Area Harga: {priceAreas.find((area: any) => area.id === parseInt(formData.price_area_id))?.name || 'Harga Dasar'}
+                      </p>
+                    )}
+                    <p className="text-lg font-medium">Total: {formatCurrency(calculateTotal())}</p>
+                  </div>
                 </TableRow>
               ))
             )}
