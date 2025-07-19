@@ -36,7 +36,6 @@ const IndividualDeliveries: React.FC = () => {
     customer_name: '',
     customer_contact: '',
     status: 'pending',
-    price_area_id: ''
     price_area_id: '',
     purchase_date: '',
     status: 'pending',
