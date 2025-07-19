@@ -36,6 +36,7 @@ const IndividualDeliveries: React.FC = () => {
     customer_contact: '',
     city_id: '',
     price_area_id: '',
+    price_area_id: '',
     purchase_date: '',
     status: 'pending',
     price_markup: 'normal',
@@ -84,6 +85,51 @@ const IndividualDeliveries: React.FC = () => {
       value: area.id,
       label: area.name
     }));
+  };
+
+  const getPriceAreaOptions = () => {
+    return [
+      { value: '', label: 'Harga Dasar' },
+      ...priceAreas.map((area: any) => ({
+        value: area.id,
+        label: area.name
+      }))
+    ];
+  };
+
+  const getProductPrice = (product: any) => {
+    if (!formData.price_area_id) {
+      return product.base_price;
+    }
+    
+    const areaPrice = product.area_prices?.find((ap: any) => 
+      ap.price_area_id === parseInt(formData.price_area_id)
+    );
+    
+    return areaPrice ? areaPrice.price : product.base_price;
+  };
+
+  const handlePriceAreaChange = (priceAreaId: string) => {
+    setFormData({ ...formData, price_area_id: priceAreaId });
+    
+    // Update prices for all existing items
+    const updatedItems = deliveryItems.map((item: any) => {
+      const product = products.find((p: any) => p.id === item.product_id);
+      if (product) {
+        const newPrice = priceAreaId ? 
+          (product.area_prices?.find((ap: any) => ap.price_area_id === parseInt(priceAreaId))?.price || product.base_price) :
+          product.base_price;
+        
+        return {
+          ...item,
+          unit_price: newPrice,
+          total_price: newPrice * item.quantity
+        };
+      }
+      return item;
+    });
+    
+    setDeliveryItems(updatedItems);
   };
 
   const getCityName = (cityId: number) => {
@@ -151,7 +197,7 @@ const IndividualDeliveries: React.FC = () => {
     if (field === 'product_id') {
       const product = products.find((p: any) => p.id === parseInt(value));
       if (product) {
-        newItems[index].unit_price = getProductPrice(parseInt(value));
+        newItems[index].unit_price = getProductPrice(product);
         if (product.product_type === 'package') {
           const packageItems = product.package_items || [];
           let hasEnoughStock = true;
@@ -337,6 +383,7 @@ const IndividualDeliveries: React.FC = () => {
       const deliveryData = {
         ...formData,
         total_amount: calculateTotal(),
+        price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
         price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null
       };
 
@@ -363,6 +410,7 @@ const IndividualDeliveries: React.FC = () => {
       customer_contact: delivery.customer_contact || '',
       city_id: delivery.city_id?.toString() || '',
       purchase_date: delivery.purchase_date,
+      price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       status: delivery.status,
       price_markup: delivery.price_markup,
@@ -713,6 +761,7 @@ const IndividualDeliveries: React.FC = () => {
       customer_contact: '',
       city_id: '',
       price_area_id: '',
+      price_area_id: '',
       purchase_date: '',
       status: 'pending',
       price_markup: 'normal',
@@ -1053,7 +1102,7 @@ const IndividualDeliveries: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Select
                 label="Markup Harga"
                 value={formData.price_markup}
@@ -1062,6 +1111,13 @@ const IndividualDeliveries: React.FC = () => {
                   // Recalculate item prices when markup changes
                   const newItems = deliveryItems.map(item => {
                     const product = products.find((p: any) => p.id === item.product_id);
+              <Select
+                label="Area Harga"
+                value={formData.price_area_id}
+                onChange={(value) => handlePriceAreaChange(value.toString())}
+                options={getPriceAreaOptions()}
+                placeholder="Pilih area harga"
+              />
                     if (product) {
                       let basePrice = product.base_price;
                       if (item.price_type === 'area' && item.area_price_id) {
@@ -1210,8 +1266,7 @@ const IndividualDeliveries: React.FC = () => {
                         type="number"
                         value={item.unit_price}
                         disabled
-                        className="bg-gray-50"
-                      />
+                        className="bg-gray-100"
                       <Input
                         label="Total Harga"
                         type="number"

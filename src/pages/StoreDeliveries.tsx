@@ -34,6 +34,7 @@ const StoreDeliveries: React.FC = () => {
     city_id: '',
     store_id: '',
     price_area_id: '',
+    price_area_id: '',
     delivery_date: '',
     invoice_date: '',
     billing_date: '',
@@ -75,6 +76,51 @@ const StoreDeliveries: React.FC = () => {
         value: store.id,
         label: store.name
       }));
+  };
+
+  const getPriceAreaOptions = () => {
+    return [
+      { value: '', label: 'Harga Dasar' },
+      ...priceAreas.map((area: any) => ({
+        value: area.id,
+        label: area.name
+      }))
+    ];
+  };
+
+  const getProductPrice = (product: any) => {
+    if (!formData.price_area_id) {
+      return product.base_price;
+    }
+    
+    const areaPrice = product.area_prices?.find((ap: any) => 
+      ap.price_area_id === parseInt(formData.price_area_id)
+    );
+    
+    return areaPrice ? areaPrice.price : product.base_price;
+  };
+
+  const handlePriceAreaChange = (priceAreaId: string) => {
+    setFormData({ ...formData, price_area_id: priceAreaId });
+    
+    // Update prices for all existing items
+    const updatedItems = deliveryItems.map((item: any) => {
+      const product = products.find((p: any) => p.id === item.product_id);
+      if (product) {
+        const newPrice = priceAreaId ? 
+          (product.area_prices?.find((ap: any) => ap.price_area_id === parseInt(priceAreaId))?.price || product.base_price) :
+          product.base_price;
+        
+        return {
+          ...item,
+          unit_price: newPrice,
+          total_price: newPrice * item.quantity
+        };
+      }
+      return item;
+    });
+    
+    setDeliveryItems(updatedItems);
   };
 
   const getPriceAreaOptions = () => {
@@ -148,7 +194,7 @@ const StoreDeliveries: React.FC = () => {
     if (field === 'product_id') {
       const product = products.find((p: any) => p.id === parseInt(value));
       if (product) {
-        newItems[index].unit_price = getProductPrice(parseInt(value));
+        newItems[index].unit_price = getProductPrice(product);
         if (product.product_type === 'package') {
           const packageItems = product.package_items || [];
           let hasEnoughStock = true;
@@ -335,6 +381,7 @@ const StoreDeliveries: React.FC = () => {
         ...formData,
         store_id: parseInt(formData.store_id),
         price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
+        price_area_id: formData.price_area_id ? parseInt(formData.price_area_id) : null,
         total_amount: calculateTotal()
       };
 
@@ -360,6 +407,7 @@ const StoreDeliveries: React.FC = () => {
     setFormData({
       city_id: store ? store.city_id.toString() : '',
       store_id: delivery.store_id.toString(),
+      price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       price_area_id: delivery.price_area_id ? delivery.price_area_id.toString() : '',
       delivery_date: delivery.delivery_date,
       invoice_date: delivery.invoice_date || '',
@@ -615,6 +663,7 @@ const StoreDeliveries: React.FC = () => {
     setFormData({
       city_id: '',
       store_id: '',
+      price_area_id: '',
       price_area_id: '',
       delivery_date: '',
       invoice_date: '',
@@ -910,7 +959,14 @@ const StoreDeliveries: React.FC = () => {
                       }
                       const markupPrice = calculateMarkupPrice(basePrice, value.toString());
                       return {
-                        ...item,
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Select
+                label="Area Harga"
+                value={formData.price_area_id}
+                onChange={(value) => handlePriceAreaChange(value.toString())}
+                options={getPriceAreaOptions()}
+                placeholder="Pilih area harga"
+              />
                         unit_price: roundToThousand(markupPrice),
                         total_price: roundToThousand(markupPrice * item.quantity)
                       };
@@ -1053,8 +1109,7 @@ const StoreDeliveries: React.FC = () => {
                         type="number"
                         value={item.unit_price}
                         disabled
-                        className="bg-gray-50"
-                      />
+                        className="bg-gray-100"
                       <Input
                         label="Total Harga"
                         type="number"
