@@ -135,6 +135,10 @@ const Products: React.FC = () => {
 
   const handleEdit = (product: any) => {
     setEditingProduct(product);
+    
+    // Load area prices with proper structure
+    const loadedAreaPrices = product.area_prices || [];
+    
     setFormData({
       name: product.name,
       packaging: product.packaging,
@@ -146,7 +150,7 @@ const Products: React.FC = () => {
       minimum_stock: product.minimum_stock,
       base_price: product.base_price,
       rounding_enabled: product.rounding_enabled !== false, // Default to true if not set
-      area_prices: product.area_prices || [],
+      area_prices: loadedAreaPrices,
       package_items: product.package_items || []
     });
     setShowForm(true);
@@ -222,13 +226,19 @@ const Products: React.FC = () => {
   const addAreaPrice = () => {
     setFormData({
       ...formData,
-      area_prices: [...formData.area_prices, { price_area_id: '', price: 0 }]
+      area_prices: [...formData.area_prices, { price_area_id: 0, price: 0 }]
     });
   };
 
   const updateAreaPrice = (index: number, field: string, value: any) => {
     const newAreaPrices = [...formData.area_prices];
-    newAreaPrices[index] = { ...newAreaPrices[index], [field]: value };
+    if (field === 'price_area_id') {
+      newAreaPrices[index] = { ...newAreaPrices[index], [field]: parseInt(value) };
+    } else if (field === 'price') {
+      newAreaPrices[index] = { ...newAreaPrices[index], [field]: parseFloat(value) || 0 };
+    } else {
+      newAreaPrices[index] = { ...newAreaPrices[index], [field]: value };
+    }
     setFormData({ ...formData, area_prices: newAreaPrices });
   };
 
@@ -973,7 +983,7 @@ const Products: React.FC = () => {
                     <Select
                       label="Area Harga"
                       value={areaPrice.price_area_id}
-                      onChange={(value) => updateAreaPrice(index, 'price_area_id', parseInt(value.toString()))}
+                      onChange={(value) => updateAreaPrice(index, 'price_area_id', value)}
                       options={priceAreas.map((area: any) => ({
                         value: area.id,
                         label: area.name
@@ -989,7 +999,7 @@ const Products: React.FC = () => {
                         <Input
                           type="number"
                           value={areaPrice.price}
-                          onChange={(e) => updateAreaPrice(index, 'price', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => updateAreaPrice(index, 'price', e.target.value)}
                           min={0}
                           required
                           className="flex-1"
