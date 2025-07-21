@@ -89,6 +89,9 @@ const Products: React.FC = () => {
       ap.price_area_id && ap.price_area_id > 0 && ap.price > 0
     );
     
+    console.log('Submit: Raw area prices from form:', formData.area_prices);
+    console.log('Submit: Valid area prices:', validAreaPrices);
+    
     try {
       // Apply custom rounding conditionally based on rounding_enabled
       const finalBasePrice = formData.rounding_enabled ? customRound(formData.base_price) : formData.base_price;
@@ -101,7 +104,7 @@ const Products: React.FC = () => {
         price: formData.rounding_enabled ? customRound(ap.price) : ap.price
       }));
 
-      console.log('Saving area prices:', finalAreaPrices); // Debug log
+      console.log('Submit: Final area prices to save:', finalAreaPrices);
 
       if (editingProduct) {
         await db.updateProduct(
