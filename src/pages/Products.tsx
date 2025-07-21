@@ -84,13 +84,24 @@ const Products: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate area prices
+    const validAreaPrices = formData.area_prices.filter(ap => 
+      ap.price_area_id && ap.price_area_id > 0 && ap.price > 0
+    );
+    
     try {
       // Apply custom rounding conditionally based on rounding_enabled
       const finalBasePrice = formData.rounding_enabled ? customRound(formData.base_price) : formData.base_price;
-      const finalAreaPrices = formData.area_prices.map(ap => ({
+      const finalAreaPrices = validAreaPrices.map(ap => ({
+        ...ap,
+        price_area_id: parseInt(ap.price_area_id.toString()),
+        price: parseFloat(ap.price.toString())
+      })).map(ap => ({
         ...ap,
         price: formData.rounding_enabled ? customRound(ap.price) : ap.price
       }));
+
+      console.log('Saving area prices:', finalAreaPrices); // Debug log
 
       if (editingProduct) {
         await db.updateProduct(
@@ -137,7 +148,12 @@ const Products: React.FC = () => {
     setEditingProduct(product);
     
     // Load area prices with proper structure
-    const loadedAreaPrices = product.area_prices || [];
+    const loadedAreaPrices = (product.area_prices || []).map((ap: any) => ({
+      price_area_id: ap.price_area_id || ap.area_id || 0,
+      price: ap.price || 0
+    }));
+    
+    console.log('Loading area prices for edit:', loadedAreaPrices); // Debug log
     
     setFormData({
       name: product.name,
@@ -233,12 +249,16 @@ const Products: React.FC = () => {
   const updateAreaPrice = (index: number, field: string, value: any) => {
     const newAreaPrices = [...formData.area_prices];
     if (field === 'price_area_id') {
-      newAreaPrices[index] = { ...newAreaPrices[index], [field]: parseInt(value) };
+      const priceAreaId = parseInt(value.toString()) || 0;
+      newAreaPrices[index] = { ...newAreaPrices[index], [field]: priceAreaId };
     } else if (field === 'price') {
-      newAreaPrices[index] = { ...newAreaPrices[index], [field]: parseFloat(value) || 0 };
+      const price = parseFloat(value.toString()) || 0;
+      newAreaPrices[index] = { ...newAreaPrices[index], [field]: price };
     } else {
       newAreaPrices[index] = { ...newAreaPrices[index], [field]: value };
     }
+    
+    console.log('Updated area prices:', newAreaPrices); // Debug log
     setFormData({ ...formData, area_prices: newAreaPrices });
   };
 
@@ -983,7 +1003,7 @@ const Products: React.FC = () => {
                     <Select
                       label="Area Harga"
                       value={areaPrice.price_area_id}
-                      onChange={(value) => updateAreaPrice(index, 'price_area_id', value)}
+                      onChange={(value) => updateAreaPrice(index, 'price_area_id', parseInt(value.toString()))}
                       options={priceAreas.map((area: any) => ({
                         value: area.id,
                         label: area.name
@@ -999,7 +1019,7 @@ const Products: React.FC = () => {
                         <Input
                           type="number"
                           value={areaPrice.price}
-                          onChange={(e) => updateAreaPrice(index, 'price', e.target.value)}
+                          onChange={(e) => updateAreaPrice(index, 'price', parseFloat(e.target.value) || 0)}
                           min={0}
                           required
                           className="flex-1"
@@ -1113,6 +1133,11 @@ const Products: React.FC = () => {
                       <span className="font-medium">
                         {formatCurrency(product.base_price)}
                       </span>
+                      {product.area_prices && product.area_prices.length > 0 && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          +{product.area_prices.length} area harga
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className="font-medium text-emerald-600">
