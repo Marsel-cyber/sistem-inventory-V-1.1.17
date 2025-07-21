@@ -84,10 +84,13 @@ const Products: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate area prices
-    const validAreaPrices = formData.area_prices.filter(ap => 
-      ap.price_area_id && ap.price_area_id > 0 && ap.price > 0
-    );
+    // Validate and process area prices
+    const validAreaPrices = formData.area_prices
+      .filter(ap => ap.price_area_id && ap.price_area_id !== '' && ap.price > 0)
+      .map(ap => ({
+        price_area_id: parseInt(ap.price_area_id.toString()),
+        price: parseFloat(ap.price.toString())
+      }));
     
     console.log('Submit: Raw area prices from form:', formData.area_prices);
     console.log('Submit: Valid area prices:', validAreaPrices);
@@ -96,10 +99,6 @@ const Products: React.FC = () => {
       // Apply custom rounding conditionally based on rounding_enabled
       const finalBasePrice = formData.rounding_enabled ? customRound(formData.base_price) : formData.base_price;
       const finalAreaPrices = validAreaPrices.map(ap => ({
-        ...ap,
-        price_area_id: parseInt(ap.price_area_id.toString()),
-        price: parseFloat(ap.price.toString())
-      })).map(ap => ({
         ...ap,
         price: formData.rounding_enabled ? customRound(ap.price) : ap.price
       }));
@@ -150,13 +149,16 @@ const Products: React.FC = () => {
   const handleEdit = (product: any) => {
     setEditingProduct(product);
     
+    console.log('Edit: Raw product data:', product);
+    console.log('Edit: Product area_prices:', product.area_prices);
+    
     // Load area prices with proper structure
     const loadedAreaPrices = (product.area_prices || []).map((ap: any) => ({
-      price_area_id: ap.price_area_id || ap.area_id || 0,
+      price_area_id: (ap.price_area_id || ap.area_id || '').toString(),
       price: ap.price || 0
     }));
     
-    console.log('Loading area prices for edit:', loadedAreaPrices); // Debug log
+    console.log('Edit: Processed area prices:', loadedAreaPrices);
     
     setFormData({
       name: product.name,
@@ -245,15 +247,14 @@ const Products: React.FC = () => {
   const addAreaPrice = () => {
     setFormData({
       ...formData,
-      area_prices: [...formData.area_prices, { price_area_id: 0, price: 0 }]
+      area_prices: [...formData.area_prices, { price_area_id: '', price: 0 }]
     });
   };
 
   const updateAreaPrice = (index: number, field: string, value: any) => {
     const newAreaPrices = [...formData.area_prices];
     if (field === 'price_area_id') {
-      const priceAreaId = parseInt(value.toString()) || 0;
-      newAreaPrices[index] = { ...newAreaPrices[index], [field]: priceAreaId };
+      newAreaPrices[index] = { ...newAreaPrices[index], [field]: value };
     } else if (field === 'price') {
       const price = parseFloat(value.toString()) || 0;
       newAreaPrices[index] = { ...newAreaPrices[index], [field]: price };
@@ -261,7 +262,7 @@ const Products: React.FC = () => {
       newAreaPrices[index] = { ...newAreaPrices[index], [field]: value };
     }
     
-    console.log('Updated area prices:', newAreaPrices); // Debug log
+    console.log('Updated area prices:', newAreaPrices);
     setFormData({ ...formData, area_prices: newAreaPrices });
   };
 
@@ -1006,7 +1007,7 @@ const Products: React.FC = () => {
                     <Select
                       label="Area Harga"
                       value={areaPrice.price_area_id}
-                      onChange={(value) => updateAreaPrice(index, 'price_area_id', parseInt(value.toString()))}
+                      onChange={(value) => updateAreaPrice(index, 'price_area_id', value)}
                       options={priceAreas.map((area: any) => ({
                         value: area.id,
                         label: area.name
