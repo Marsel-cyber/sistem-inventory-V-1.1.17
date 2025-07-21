@@ -335,6 +335,8 @@ class Database {
     const products = this.getItem<any>('products');
     const index = products.findIndex(product => product.id === id);
     if (index !== -1) {
+      console.log('Database: Updating area prices:', area_prices);
+      
       products[index] = {
         ...products[index],
         name,
@@ -346,6 +348,7 @@ class Database {
         stock_pcs: stockPcs,
         minimum_stock: minimumStock,
         base_price: basePrice,
+        area_prices: area_prices || [],
         rounding_enabled: roundingEnabled,
         area_prices: areaPrices,
         package_items: packageItems
@@ -1666,6 +1669,7 @@ class Database {
       };
       
       // Create and download file
+      console.log('Database: Product updated with area prices:', products[index].area_prices);
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
