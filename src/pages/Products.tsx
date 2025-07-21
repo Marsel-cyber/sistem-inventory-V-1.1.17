@@ -150,10 +150,12 @@ const Products: React.FC = () => {
     setEditingProduct(product);
     
     console.log('Edit: Raw product data:', product);
-    console.log('Edit: Product area_prices:', product.area_prices);
+    console.log('Edit: Product area_prices:', product.area_prices || []);
+    console.log('Edit: Product rounding_enabled:', product.rounding_enabled);
     
     // Load area prices with proper structure
-    const loadedAreaPrices = (product.area_prices || []).map((ap: any) => ({
+    const rawAreaPrices = product.area_prices || [];
+    const loadedAreaPrices = rawAreaPrices.map((ap: any) => ({
       price_area_id: (ap.price_area_id || ap.area_id || '').toString(),
       price: ap.price || 0
     }));
@@ -170,7 +172,7 @@ const Products: React.FC = () => {
       stock_pcs: product.stock_pcs,
       minimum_stock: product.minimum_stock,
       base_price: product.base_price,
-      rounding_enabled: product.rounding_enabled !== false, // Default to true if not set
+      rounding_enabled: typeof product.rounding_enabled === 'boolean' ? product.rounding_enabled : true,
       area_prices: loadedAreaPrices,
       package_items: product.package_items || []
     });
