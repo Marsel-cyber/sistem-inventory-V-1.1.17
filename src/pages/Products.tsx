@@ -85,7 +85,7 @@ const Products: React.FC = () => {
     e.preventDefault();
     
     // Validate and process area prices
-    const validAreaPrices = formData.area_prices
+    const validAreaPrices = (formData.area_prices || [])
       .filter(ap => ap.price_area_id && ap.price_area_id !== '' && ap.price > 0)
       .map(ap => ({
         price_area_id: parseInt(ap.price_area_id.toString()),
