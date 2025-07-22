@@ -309,13 +309,12 @@ class Database {
       stock_pcs: stockPcs,
       minimum_stock: minimumStock,
       base_price: basePrice,
-      area_prices: area_prices || [],
-      rounding_enabled: true,
       area_prices: areaPrices,
+      rounding_enabled: roundingEnabled,
       package_items: packageItems,
       created_at: new Date().toISOString()
     };
-    console.log('Database: Adding product with area_prices:', area_prices);
+    console.log('Database: Adding product with area_prices:', areaPrices);
     console.log('Database: New product object:', newProduct);
     
     products.push(newProduct);
@@ -340,7 +339,7 @@ class Database {
     const products = this.getItem<any>('products');
     const index = products.findIndex(product => product.id === id);
     if (index !== -1) {
-      console.log('Database: Updating product with area_prices:', area_prices);
+      console.log('Database: Updating product with area_prices:', areaPrices);
       
       products[index] = {
         ...products[index],
@@ -353,7 +352,6 @@ class Database {
         stock_pcs: stockPcs,
         minimum_stock: minimumStock,
         base_price: basePrice,
-        area_prices: area_prices || [],
         area_prices: areaPrices,
         package_items: packageItems
       };
@@ -1671,8 +1669,6 @@ class Database {
         timestamp: new Date().toISOString(),
         description: 'Risna Cookies Inventory System Backup'
       };
-      
-      console.log('Database: Updated product object:', products[index]);
       
       // Create and download file
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
