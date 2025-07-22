@@ -249,7 +249,6 @@ class Database {
   async getProducts(): Promise<any[]> {
     const products = this.getItem<any>('products');
     const hpps = this.getItem<any>('hpp');
-    console.log('Database: Loading products, first product area_prices:', products[0]?.area_prices);
     
     // Calculate total stock for each product
     return products.map(product => {
@@ -293,7 +292,6 @@ class Database {
     stockPcs: number,
     minimumStock: number,
     basePrice: number,
-    roundingEnabled: boolean,
     areaPrices: any[],
     packageItems: any[]
   ): Promise<void> {
@@ -310,13 +308,9 @@ class Database {
       minimum_stock: minimumStock,
       base_price: basePrice,
       area_prices: areaPrices,
-      rounding_enabled: roundingEnabled,
       package_items: packageItems,
       created_at: new Date().toISOString()
     };
-    console.log('Database: Adding product with area_prices:', areaPrices);
-    console.log('Database: New product object:', newProduct);
-    
     products.push(newProduct);
     this.setItem('products', products);
   }
@@ -332,15 +326,12 @@ class Database {
     stockPcs: number,
     minimumStock: number,
     basePrice: number,
-    roundingEnabled: boolean,
     areaPrices: any[],
     packageItems: any[]
   ): Promise<void> {
     const products = this.getItem<any>('products');
     const index = products.findIndex(product => product.id === id);
     if (index !== -1) {
-      console.log('Database: Updating product with area_prices:', areaPrices);
-      
       products[index] = {
         ...products[index],
         name,
@@ -553,7 +544,6 @@ class Database {
     const newDelivery = {
       id: this.getNextId(deliveries),
       ...deliveryData,
-      price_area_id: deliveryData.price_area_id,
       items,
       created_at: new Date().toISOString()
     };
@@ -604,7 +594,6 @@ class Database {
       deliveries[index] = {
         ...oldDelivery,
         ...deliveryData,
-        price_area_id: deliveryData.price_area_id,
         items
       };
       this.setItem('store_deliveries', deliveries);
@@ -681,8 +670,6 @@ class Database {
     const newDelivery = {
       id: this.getNextId(deliveries),
       ...deliveryData,
-      city_id: deliveryData.city_id ? parseInt(deliveryData.city_id) : null,
-      price_area_id: deliveryData.price_area_id,
       items,
       created_at: new Date().toISOString()
     };
@@ -733,8 +720,6 @@ class Database {
       deliveries[index] = {
         ...oldDelivery,
         ...deliveryData,
-        city_id: deliveryData.city_id ? parseInt(deliveryData.city_id) : null,
-        price_area_id: deliveryData.price_area_id,
         items
       };
       this.setItem('individual_deliveries', deliveries);
